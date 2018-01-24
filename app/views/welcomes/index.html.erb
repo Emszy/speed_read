@@ -1,0 +1,97 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Welcomes</h1>
+<center>
+  <div id="page"></div>
+</center>
+<script type="text/javascript">
+
+var pages = [];
+var x = 0;
+pages[0] = [];
+<% reader = PDF::Reader.new(Rails.root.join('app', 'assets', 'pdfs', 'How_to_write_business_plan.pdf')) %>
+
+   <%  reader.pages.each do |page| %>
+   <% if page.number < 10 %>
+      <% page.text.split(" ").each do |word| %>
+          pages[x] += "<%= word %>" + " ";
+      <% end %>
+
+    x++;
+    pages[x] = [];
+   <% end %>
+      <%  end %>
+
+
+
+function put_word(word)
+{
+    document.getElementById("page").innerHTML = word;
+
+}
+
+window.requestAnimFrame = (function(){
+    return  window.requestAnimationFrame || 
+    window.webkitRequestAnimationFrame   || 
+    window.mozRequestAnimationFrame      || 
+    window.oRequestAnimationFrame        || 
+    window.msRequestAnimationFrame       || 
+    function(callback, element){
+        window.setTimeout(function(){
+            callback(+new Date);
+        }, 1000 / 1);
+    };
+})();
+
+var page_num = 0;
+var word_num = 0;
+var words = pages[page_num].split(" ");
+var word_count = words.length;
+var game_running = true;
+var lastRun = null;
+
+    function gameLoop()
+    {
+      counter = 0;
+        if(!lastRun)
+        {
+            lastRun = new Date().getTime();
+            requestAnimFrame(gameLoop);
+            return;
+        }
+        var delta = (new Date().getTime() - lastRun)/1000;
+        lastRun = new Date().getTime();
+        fps = 1/delta;
+
+        if(word_num > word_count)
+        {
+          page_num++;
+          words = pages[page_num].split(" ");
+          word_count = words.length;
+          word_num = 0;
+        }
+        if(page_num > pages.length - 1)
+        {
+          game_running = false
+        }
+        else
+        {
+          put_word(words[word_num]);
+          word_num++;
+        }
+        while (counter < 100000000) counter++;
+
+        if (game_running) requestAnimFrame(gameLoop);
+
+    }
+
+    gameLoop();
+
+
+</script>
+
+      <canvas id="mycanvas" width="832" height="704"></canvas>
+      
+
+
+
