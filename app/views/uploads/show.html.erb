@@ -3,11 +3,26 @@
 <center>
   <div id="page"></div>
   <div id="page_number" style="margin-top:50px;"></div>
+    <button onclick="start_words();">Start Words</button>
+  	<button onclick="stop_words();">Stop Words</button>
+  	<br>
+  	<br>
+  	<button onclick="rewind()">REWIND</button>
+  	<button onclick="forward()">FORWARD</button>
 </center>
 <script type="text/javascript">
 
 var pages = [];
 var x = 0;
+var reading = true;
+var page_num = 0;
+var word_num = 0;
+var words = [];
+var word_count = 0;
+
+
+
+
 pages[0] = [];
 
 <% file = open(@upload.pdf_file)
@@ -15,14 +30,16 @@ pages[0] = [];
 <% reader = PDF::Reader.new(file) %>
 
    <%  reader.pages.each do |page| %>
-   <% if page.number < 20 %>
+   <% if page.number > 5 %>
+   	<% break %>
+   <% end %>
       <% page.text.split(" ").each do |word| %>
-          pages[x] += "<%= word %>" + ",";
+          pages[x] += "<%= word %>" + "|";
       <% end %>
 
     x++;
     pages[x] = [];
-   <% end %>
+
       <%  end %>
 
 function put_word(word, page_num)
@@ -30,6 +47,51 @@ function put_word(word, page_num)
   if (word) document.getElementById("page").innerHTML = word;
   if (word) document.getElementById("page_number").innerHTML = page_num;
 }
+
+function stop_words()
+{
+	reading = false;
+}
+function start_words()
+{
+	reading = true;
+}
+
+function rewind()
+{
+	if (word_num > 0)
+	{
+		word_num--;
+	}
+	if (word_num <= 0)
+	{
+		if (page_num > 0)
+		{
+			page_num--;
+			word_num = pages[page_num].split("|").length;
+		}
+	}
+}
+
+function forward()
+{
+	if (page_num > pages.length)
+	{
+		return (-1);
+	}
+	if (word_num < word_count)
+	{
+		word_num++;
+	}
+	if (word_num >= word_count)
+	{
+		page_num++;
+		word_num = 0;
+		words = pages[page_num].split("|");
+		word_count = words.length;
+	}
+}
+
 window.requestAnimFrame = (function(){
     return  window.requestAnimationFrame || 
     window.webkitRequestAnimationFrame   || 
@@ -45,15 +107,20 @@ window.requestAnimFrame = (function(){
 
 (function(window, document){
 
-    var reading = true;
+   
     var lastRun = null;
-    var page_num = 0;
-    var word_num = 0;
-    	var words = pages[page_num].split(",");
-    	var word_count = words.length;
+
+    words = pages[page_num].split("|");
+    word_count = words.length;
+
+
+
+
 
     function gameLoop(){
-    	if (words == null) return (0);
+
+
+    	if (reading == false) requestAnimFrame(gameLoop);
         if(!lastRun)
         {
             lastRun = new Date().getTime();
@@ -67,24 +134,25 @@ window.requestAnimFrame = (function(){
         if(word_num > word_count)
         {
           page_num++;
-          words = pages[page_num].split(",");
+          words = pages[page_num].split("|");
           word_count = words.length;
           word_num = 0;
         }
-        if(page_num > pages.length)
+        if(page_num >= pages.length)
         {
           reading = false
         }
         else
         {
           put_word(words[word_num], page_num);
-          word_num++;
+          if (reading == false) word_num += 0;
+          else word_num++;
+         
         }
         var counter = 0
 
-        while (counter < 1000000) counter++;
+        while (counter < 10000000) counter++;
         if (reading) requestAnimFrame(gameLoop);
-        else game_over();
 
     }
 
