@@ -22,14 +22,10 @@ pages[0] = [];
    <% end %>
       <%  end %>
 
-
-
 function put_word(word)
 {
-    document.getElementById("page").innerHTML = word;
-
+  if (word) document.getElementById("page").innerHTML = word;
 }
-
 window.requestAnimFrame = (function(){
     return  window.requestAnimationFrame || 
     window.webkitRequestAnimationFrame   || 
@@ -39,20 +35,20 @@ window.requestAnimFrame = (function(){
     function(callback, element){
         window.setTimeout(function(){
             callback(+new Date);
-        }, 1000 / 1);
+        }, 1000 / 60);
     };
 })();
 
-var page_num = 0;
-var word_num = 0;
-var words = pages[page_num].split(" ");
-var word_count = words.length;
-var game_running = true;
-var lastRun = null;
+(function(window, document){
 
-    function gameLoop()
-    {
-      counter = 0;
+    var reading = true;
+    var lastRun = null;
+    var page_num = 0;
+    var word_num = 0;
+    var words = pages[page_num].split(" ");
+    var word_count = words.length;
+
+    function gameLoop(){
         if(!lastRun)
         {
             lastRun = new Date().getTime();
@@ -70,28 +66,31 @@ var lastRun = null;
           word_count = words.length;
           word_num = 0;
         }
-        if(page_num > pages.length - 1)
+        if(page_num > pages.length)
         {
-          game_running = false
+          reading = false
         }
         else
         {
           put_word(words[word_num]);
           word_num++;
         }
-        while (counter < 100000000) counter++;
+        var counter = 0
 
-        if (game_running) requestAnimFrame(gameLoop);
+        while (counter < 100000000) counter++;
+        if (reading) requestAnimFrame(gameLoop);
+        else game_over();
 
     }
 
     gameLoop();
 
+}(this, this.document))
 
 </script>
 
       <canvas id="mycanvas" width="832" height="704"></canvas>
       
-
+<%= link_to "UpLoad PDF", uploads_path %>
 
 

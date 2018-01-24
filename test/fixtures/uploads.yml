@@ -1,0 +1,9 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  pdf_id: 1
+  pdf_file: 
+
+two:
+  pdf_id: 1
+  pdf_file: 

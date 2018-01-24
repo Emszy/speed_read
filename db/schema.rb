@@ -11,7 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180123233332) do
+ActiveRecord::Schema.define(version: 20180124060358) do
+
+  create_table "uploads", force: :cascade do |t|
+    t.integer  "pdf_id"
+    t.binary   "pdf_file"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "welcomes", force: :cascade do |t|
     t.datetime "created_at", null: false
