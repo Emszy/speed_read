@@ -5,6 +5,7 @@ class WelcomesController < ApplicationController
   # GET /welcomes.json
   def index
     @welcomes = Welcome.all
+    @books = Books.all
   end
 
   # GET /welcomes/1

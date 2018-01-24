@@ -1,5 +1,101 @@
 <p id="notice"><%= notice %></p>
 
+<center>
+  <div id="page"></div>
+  <div id="page_number" style="margin-top:50px;"></div>
+</center>
+<script type="text/javascript">
+
+var pages = [];
+var x = 0;
+pages[0] = [];
+
+<% file = open(@upload.pdf_file)
+ %>
+<% reader = PDF::Reader.new(file) %>
+
+   <%  reader.pages.each do |page| %>
+   <% if page.number < 20 %>
+      <% page.text.split(" ").each do |word| %>
+          pages[x] += "<%= word %>" + ",";
+      <% end %>
+
+    x++;
+    pages[x] = [];
+   <% end %>
+      <%  end %>
+
+function put_word(word, page_num)
+{
+  if (word) document.getElementById("page").innerHTML = word;
+  if (word) document.getElementById("page_number").innerHTML = page_num;
+}
+window.requestAnimFrame = (function(){
+    return  window.requestAnimationFrame || 
+    window.webkitRequestAnimationFrame   || 
+    window.mozRequestAnimationFrame      || 
+    window.oRequestAnimationFrame        || 
+    window.msRequestAnimationFrame       || 
+    function(callback, element){
+        window.setTimeout(function(){
+            callback(+new Date);
+        }, 1000 / 60);
+    };
+})();
+
+(function(window, document){
+
+    var reading = true;
+    var lastRun = null;
+    var page_num = 0;
+    var word_num = 0;
+    	var words = pages[page_num].split(",");
+    	var word_count = words.length;
+
+    function gameLoop(){
+    	if (words == null) return (0);
+        if(!lastRun)
+        {
+            lastRun = new Date().getTime();
+            requestAnimFrame(gameLoop);
+            return;
+        }
+        var delta = (new Date().getTime() - lastRun)/1000;
+        lastRun = new Date().getTime();
+        fps = 1/delta;
+
+        if(word_num > word_count)
+        {
+          page_num++;
+          words = pages[page_num].split(",");
+          word_count = words.length;
+          word_num = 0;
+        }
+        if(page_num > pages.length)
+        {
+          reading = false
+        }
+        else
+        {
+          put_word(words[word_num], page_num);
+          word_num++;
+        }
+        var counter = 0
+
+        while (counter < 1000000) counter++;
+        if (reading) requestAnimFrame(gameLoop);
+        else game_over();
+
+    }
+
+    gameLoop();
+
+}(this, this.document))
+
+</script>
+
+      <canvas id="mycanvas" width="832" height="704"></canvas>
+
 <p>
   <strong>Pdf:</strong>
   <%= @upload.pdf_id %>
