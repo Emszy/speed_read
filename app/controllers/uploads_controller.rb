@@ -10,7 +10,7 @@ class UploadsController < ApplicationController
   # GET /uploads/1
   # GET /uploads/1.json
   def show
-    
+
   end
 
   # GET /uploads/new
@@ -25,10 +25,33 @@ class UploadsController < ApplicationController
   # POST /uploads
   # POST /uploads.json
   def create
+ 
+
     @upload = Upload.new(upload_params)
 
+
+    @upload.pdf_text = ""
+    begin
+      file = open(@upload.pdf_file)
+
+      if file
+        reader = PDF::Reader.new(file)
+      end
+    rescue
+      @upload.pdf_file = "There is nothing here"
+      reader = -1
+    end
+
+    if (file && reader)
+      reader.pages.each do |page| 
+        if page.number < 7 
+          @upload.pdf_text += page.text.tr('^A-Za-z0-9 ', '') + " <page++> "
+        end
+      end
+    end
+
     respond_to do |format|
-      if @upload.save
+      if @upload.save && reader != -1
         format.html { redirect_to @upload, notice: 'Upload was successfully created.' }
         format.json { render :show, status: :created, location: @upload }
       else
@@ -70,6 +93,6 @@ class UploadsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def upload_params
-      params.require(:upload).permit(:pdf_id, :pdf_file)
+      params.require(:upload).permit(:pdf_id, :pdf_file, :title, :pdf_text)
     end
 end

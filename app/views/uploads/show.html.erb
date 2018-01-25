@@ -3,8 +3,9 @@
 <center>
   <div id="page"></div>
   <div id="page_number" style="margin-top:50px;"></div>
-    <button onclick="start_words();">Start Words</button>
-  	<button onclick="stop_words();">Stop Words</button>
+
+    <button onclick="start_words();" style="color: green">Start</button>
+  	<button onclick="stop_words();" style="color: red">Stop</button>
   	<br>
   	<br>
   	<button onclick="rewind()">REWIND</button>
@@ -20,27 +21,11 @@ var word_num = 0;
 var words = [];
 var word_count = 0;
 
-
-
-
-pages[0] = [];
-
-<% file = open(@upload.pdf_file)
- %>
-<% reader = PDF::Reader.new(file) %>
-
-   <%  reader.pages.each do |page| %>
-   <% if page.number > 5 %>
-   	<% break %>
-   <% end %>
-      <% page.text.split(" ").each do |word| %>
-          pages[x] += "<%= word %>" + "|";
-      <% end %>
-
-    x++;
-    pages[x] = [];
-
-      <%  end %>
+<% @upload.pdf_text.split("<page++>").each do |page| %>
+	pages[x] = [];
+	pages[x] += "<%= page %>"
+	x++;
+<% end %>
 
 function put_word(word, page_num)
 {
@@ -68,7 +53,7 @@ function rewind()
 		if (page_num > 0)
 		{
 			page_num--;
-			word_num = pages[page_num].split("|").length;
+			word_num = pages[page_num].split(" ").length;
 		}
 	}
 }
@@ -87,7 +72,7 @@ function forward()
 	{
 		page_num++;
 		word_num = 0;
-		words = pages[page_num].split("|");
+		words = pages[page_num].split(" ");
 		word_count = words.length;
 	}
 }
@@ -110,12 +95,8 @@ window.requestAnimFrame = (function(){
    
     var lastRun = null;
 
-    words = pages[page_num].split("|");
+    words = pages[page_num].split(" ");
     word_count = words.length;
-
-
-
-
 
     function gameLoop(){
 
@@ -134,16 +115,16 @@ window.requestAnimFrame = (function(){
         if(word_num > word_count)
         {
           page_num++;
-          words = pages[page_num].split("|");
+          words = pages[page_num].split(" ");
           word_count = words.length;
           word_num = 0;
         }
-        if(page_num >= pages.length)
+        if(page_num > pages.length)
         {
           reading = false
         }
         else
-        {
+        {	
           put_word(words[word_num], page_num);
           if (reading == false) word_num += 0;
           else word_num++;
@@ -151,7 +132,7 @@ window.requestAnimFrame = (function(){
         }
         var counter = 0
 
-        while (counter < 10000000) counter++;
+        // while (counter < 10000000) counter++;
         if (reading) requestAnimFrame(gameLoop);
 
     }
@@ -161,9 +142,13 @@ window.requestAnimFrame = (function(){
 }(this, this.document))
 
 </script>
+<br>
+<br>
 
-      <canvas id="mycanvas" width="832" height="704"></canvas>
-
+<p>
+  <strong>Title:</strong>
+  <%= @upload.title %>
+</p>
 <p>
   <strong>Pdf:</strong>
   <%= @upload.pdf_id %>
@@ -172,6 +157,11 @@ window.requestAnimFrame = (function(){
 <p>
   <strong>Pdf file:</strong>
   <%= @upload.pdf_file %>
+</p>
+
+<p>
+  <strong>Pdf text:</strong>
+  <%= @upload.pdf_text %>
 </p>
 
 <%= link_to 'Edit', edit_upload_path(@upload) %> |

@@ -5,6 +5,7 @@
 <table>
   <thead>
     <tr>
+      <th>Title</th>
       <th>Pdf</th>
       <th>Pdf file</th>
       <th colspan="3"></th>
@@ -14,6 +15,7 @@
   <tbody>
     <% @uploads.each do |upload| %>
       <tr>
+        <td><%= upload.title %></td>
         <td><%= upload.pdf_id %></td>
         <td><%= upload.pdf_file %></td>
         <td><%= link_to 'Show', upload %></td>
