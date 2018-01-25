@@ -10,6 +10,11 @@
   	<br>
   	<button onclick="rewind()">REWIND</button>
   	<button onclick="forward()">FORWARD</button>
+
+    <br>
+    <span>FPS</span>
+    <br>
+    <input type="number" value="5" id="fps_dial" onchange="get_fps()"></input>
 </center>
 <script type="text/javascript">
 
@@ -20,6 +25,11 @@ var page_num = 0;
 var word_num = 0;
 var words = [];
 var word_count = 0;
+var fps = 5;
+var now;
+var then = Date.now();
+var interval = 1000/fps;
+var delta;
 
 <% @upload.pdf_text.split("<page++>").each do |page| %>
 	pages[x] = [];
@@ -27,10 +37,19 @@ var word_count = 0;
 	x++;
 <% end %>
 
+words = pages[page_num].split(" ");
+word_count = words.length;
+
 function put_word(word, page_num)
 {
   if (word) document.getElementById("page").innerHTML = word;
   if (word) document.getElementById("page_number").innerHTML = page_num;
+}
+
+function get_fps()
+{
+  fps = document.getElementById("fps_dial").value;
+  interval = 1000/fps;
 }
 
 function stop_words()
@@ -44,7 +63,7 @@ function start_words()
 
 function rewind()
 {
-	if (word_num > 0)
+	if (word_num >= 0)
 	{
 		word_num--;
 	}
@@ -77,31 +96,28 @@ function forward()
 	}
 }
 
-window.requestAnimFrame = (function(){
-    return  window.requestAnimationFrame || 
-    window.webkitRequestAnimationFrame   || 
-    window.mozRequestAnimationFrame      || 
-    window.oRequestAnimationFrame        || 
-    window.msRequestAnimationFrame       || 
-    function(callback, element){
-        window.setTimeout(function(){
-            callback(+new Date);
-        }, 1000 / 30);
-    };
-})();
+function draw() {
+    requestAnimationFrame(draw); 
+    now = Date.now();
+    delta = now - then;
+     
+    if (delta > interval) {
+        then = now - (delta % interval);
+         
+        gameLoop();
+    }
+}
+ 
+draw();
 
-(function(window, document){
+ 
 
-   
-    var lastRun = null;
 
-    words = pages[page_num].split(" ");
-    word_count = words.length;
 
     function gameLoop(){
 
 
-    	if (reading == false) requestAnimFrame(gameLoop);
+    	// if (reading == false) requestAnimFrame(gameLoop);
 
         if(word_num > word_count)
         {
@@ -123,14 +139,9 @@ window.requestAnimFrame = (function(){
         var counter = 0
 
         // while (counter < 10000000) counter++;
-        if (reading) requestAnimFrame(gameLoop);
+        // if (reading) requestAnimFrame(gameLoop);
 
     }
-
-    gameLoop();
-
-}(this, this.document))
-
 </script>
 <br>
 <br>
