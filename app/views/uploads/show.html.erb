@@ -86,7 +86,7 @@ window.requestAnimFrame = (function(){
     function(callback, element){
         window.setTimeout(function(){
             callback(+new Date);
-        }, 1000 / 60);
+        }, 1000 / 30);
     };
 })();
 
@@ -102,15 +102,6 @@ window.requestAnimFrame = (function(){
 
 
     	if (reading == false) requestAnimFrame(gameLoop);
-        if(!lastRun)
-        {
-            lastRun = new Date().getTime();
-            requestAnimFrame(gameLoop);
-            return;
-        }
-        var delta = (new Date().getTime() - lastRun)/1000;
-        lastRun = new Date().getTime();
-        fps = 1/delta;
 
         if(word_num > word_count)
         {
@@ -128,7 +119,6 @@ window.requestAnimFrame = (function(){
           put_word(words[word_num], page_num);
           if (reading == false) word_num += 0;
           else word_num++;
-         
         }
         var counter = 0
 

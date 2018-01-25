@@ -25,15 +25,11 @@ class UploadsController < ApplicationController
   # POST /uploads
   # POST /uploads.json
   def create
- 
-
     @upload = Upload.new(upload_params)
-
-
     @upload.pdf_text = ""
+
     begin
       file = open(@upload.pdf_file)
-
       if file
         reader = PDF::Reader.new(file)
       end
@@ -45,7 +41,7 @@ class UploadsController < ApplicationController
     if (file && reader)
       reader.pages.each do |page| 
         if page.number < 7 
-          @upload.pdf_text += page.text.tr('^A-Za-z0-9 ', '') + " <page++> "
+          @upload.pdf_text += page.text.gsub!(/[^0-9A-Za-z. ]/, ' ').squeeze(" ") + " <page++> "
         end
       end
     end
